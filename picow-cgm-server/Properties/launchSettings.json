@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "picow-cgm-server": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
