@@ -1,11 +1,14 @@
-﻿namespace picow_cgm_server
+﻿using System;
+using System.Threading.Tasks;
+
+namespace picow_cgm_server
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
-            Thread.Sleep(Timeout.Infinite);
+            Console.WriteLine("Starting Server...");
+            Task.WaitAll(ImageServer.StartServerAsync(5002));
         }
     }
 }
