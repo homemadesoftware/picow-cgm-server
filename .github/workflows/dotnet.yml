@@ -24,4 +24,13 @@ jobs:
       run: dotnet restore picow-cgm-server.sln
     - name: Build
       run: dotnet build  picow-cgm-server.sln --no-restore
+      
+    - name: Publish
+      run: dotnet publish -c Release -o out picow-cgm-server.sln
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Build artifacts
+        path: |
+          out/*      
     
