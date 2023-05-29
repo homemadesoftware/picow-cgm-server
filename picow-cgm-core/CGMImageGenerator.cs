@@ -53,47 +53,63 @@ namespace picow_cgm_core
 
         private void DrawGraph(Graphics g, List<DataPoint> dataPoints)
         {
-            if (dataPoints.Count < 500)
+            if (dataPoints.Count == 0)
             {
                 g.FillRectangle(Brushes.Black, new Rectangle(0, 0, width, height));
-                Font fWarning = new Font(FontFamily.GenericSansSerif, 20f, FontStyle.Bold);
+                Font fWarning = new Font(FontFamily.GenericSansSerif, 40f, FontStyle.Bold);
                 g.DrawString("NO DATA", fWarning, Brushes.White, 4, 4, StringFormat.GenericDefault);
+                return;
             }
-            else
+
+            g.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
+
+            Font fTick = new Font(FontFamily.GenericSansSerif, 6f);
+
+            Pen dashedPen = new Pen(Color.Black);
+            dashedPen.DashStyle = DashStyle.DashDotDot;
+
+            for (double bg = 2d; bg < maxBg; bg += 4)
             {
-                g.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
+                int y = BgValueToYValue(bg);
+                g.DrawLine(dashedPen, 0, y, maxX, y);
+                g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
+            }
+            g.DrawLine(Pens.Black, 0, 0, 0, maxY);
 
-                Font fTick = new Font(FontFamily.GenericSansSerif, 6f);
+            for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
+            {
+                int x = TimeOffsetToXValue(timeOffset);
+                g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
+                g.DrawLine(dashedPen, x, 0, x, maxY);
+            }
+            g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
 
-                Pen dashedPen = new Pen(Color.Black);
-                dashedPen.DashStyle = DashStyle.DashDotDot;
-
-                for (double bg = 2d; bg < maxBg; bg += 4)
+            if (dataPoints.Count > 0)
+            {
+                Point[] points = new Point[dataPoints.Count];
+                for (int i = 0; i < dataPoints.Count; ++i)
                 {
-                    int y = BgValueToYValue(bg);
-                    g.DrawLine(dashedPen, 0, y, maxX, y);
-                    g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
+                    points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
                 }
-                g.DrawLine(Pens.Black, 0, 0, 0, maxY);
+                g.DrawLines(Pens.Black, points);
 
-                for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
+                // slap a warning if needed
+                double mostRecentReadingTime = dataPoints[dataPoints.Count - 1].TimeOffsetMinutes;
+                if (mostRecentReadingTime > 5)
                 {
-                    int x = TimeOffsetToXValue(timeOffset);
-                    g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
-                    g.DrawLine(dashedPen, x, 0, x, maxY);
-                }
-                g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
-
-                if (dataPoints.Count > 0)
-                {
-                    Point[] points = new Point[dataPoints.Count];
-                    for (int i = 0; i < dataPoints.Count; ++i)
+                    Font fWarning = new Font(FontFamily.GenericSansSerif, 20f, FontStyle.Italic);
+                    if (mostRecentReadingTime > 15)
                     {
-                        points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
+                        g.DrawString("Stale > 15 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
                     }
-                    g.DrawLines(Pens.Black, points);
+                    else
+                    {
+                        g.DrawString("Stale > 5 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
+                    }
                 }
             }
+
+
         }
 
         private byte[] ToImageArrayForEPaper(Bitmap bitmap)
@@ -142,5 +158,6 @@ namespace picow_cgm_core
         {
             return (int)(maxX - timeOffsetMinutes * pixelPerMinute);
         }
+
     }
 }
