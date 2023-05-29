@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier>linux-arm</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
