@@ -1,0 +1,12 @@
+[Unit]
+Description=picow-cgm-server
+
+[Service]
+ExecStart=~/cgmserver/publish/picow-cgm-server
+Restart=always
+RestartSec=10 
+SyslogIdentifier=dotnet-app
+User=pi  
+
+[Install]
+WantedBy=multi-user.target
