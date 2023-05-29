@@ -26,7 +26,7 @@ jobs:
       run: dotnet build  picow-cgm-server.sln --no-restore
       
     - name: Publish
-      run: dotnet publish --configuration Release --no-restore --self-contained true --runtime linux-arm -p:PublishSingleFile=true -p:PublishTrimmed=true --output ./publish
+      run: dotnet publish --configuration Release --no-restore --self-contained true --runtime linux-arm --output ./publish
           
     - name: Copy to Raspberry Pi
       uses: appleboy/scp-action@master
