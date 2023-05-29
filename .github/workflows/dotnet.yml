@@ -37,7 +37,7 @@ jobs:
         port: ${{ secrets.RASPBERRY_PI_PORT }}
         username: ${{ secrets.RASPBERRY_PI_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: pkill picow-cgm-serve
+        script: sudo systemctl stop picow-cgm-server.service
           
     - name: Copy published files to Raspberry Pi
       uses: appleboy/scp-action@master
@@ -49,27 +49,7 @@ jobs:
         source: "./publish/"
         target: "~/cgmserver"
 
-    - name: Copy service file to Raspberry Pi
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.RASPBERRY_PI_IP }}
-        port: ${{ secrets.RASPBERRY_PI_PORT }}
-        username: ${{ secrets.RASPBERRY_PI_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "./picow-cgm-server.service"
-        target: "/etc/systemd/system/picow-cgm-server.service"
-
-    - name: Set permission on the service file
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.RASPBERRY_PI_IP }}
-        port: ${{ secrets.RASPBERRY_PI_PORT }}
-        username: ${{ secrets.RASPBERRY_PI_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          sudo chmod 644 /etc/systemd/system/picow-cgm-server.service
-
-    - name: Set permission and Run the application on Raspberry Pi
+    - name: Set permission, register as a service and start
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.RASPBERRY_PI_IP }}
@@ -78,15 +58,20 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           chmod +x ~/cgmserver/publish/picow-cgm-server
+          echo "[Unit]
+          Description=My .NET Core Application
 
-    - name: Start the application
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.RASPBERRY_PI_IP }}
-        port: ${{ secrets.RASPBERRY_PI_PORT }}
-        username: ${{ secrets.RASPBERRY_PI_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          sudo systemctl enable picow-cgm-server.service
+          [Service]
+          ExecStart=~/cgmserver/publish/picow-cgm-server
+          Restart=always
+          RestartSec=10  
+          SyslogIdentifier=picow-cgm-server
+          User=pi  # Replace with your user
+
+          [Install]
+          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/picow-cgm-server.service
+          sudo chmod 644 /etc/systemd/system/picow-cgm-server.service
           sudo systemctl start picow-cgm-server.service
+          sudo systemctl enable picow-cgm-server.service
+
           
