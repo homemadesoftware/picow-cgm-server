@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Collections;
 
 namespace picow_cgm_core
 {
@@ -52,38 +53,46 @@ namespace picow_cgm_core
 
         private void DrawGraph(Graphics g, List<DataPoint> dataPoints)
         {
-            g.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
-
-
-            Font fTick = new Font(FontFamily.GenericSansSerif, 6f);
-
-            Pen dashedPen = new Pen(Color.Black);
-            dashedPen.DashStyle = DashStyle.DashDotDot;
-
-            for (double bg = 2d; bg < maxBg; bg += 4)
+            if (dataPoints.Count < 500)
             {
-                int y = BgValueToYValue(bg);
-                g.DrawLine(dashedPen, 0, y, maxX, y);
-                g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
+                g.FillRectangle(Brushes.Black, new Rectangle(0, 0, width, height));
+                Font fWarning = new Font(FontFamily.GenericSansSerif, 20f, FontStyle.Bold);
+                g.DrawString("NO DATA", fWarning, Brushes.White, 4, 4, StringFormat.GenericDefault);
             }
-            g.DrawLine(Pens.Black, 0, 0, 0, maxY);
-
-            for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
+            else
             {
-                int x = TimeOffsetToXValue(timeOffset);
-                g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
-                g.DrawLine(dashedPen, x, 0, x, maxY);
-            }
-            g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
+                g.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
 
-            if (dataPoints.Count > 0)
-            {
-                Point[] points = new Point[dataPoints.Count];
-                for (int i = 0; i < dataPoints.Count; ++i)
+                Font fTick = new Font(FontFamily.GenericSansSerif, 6f);
+
+                Pen dashedPen = new Pen(Color.Black);
+                dashedPen.DashStyle = DashStyle.DashDotDot;
+
+                for (double bg = 2d; bg < maxBg; bg += 4)
                 {
-                    points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
+                    int y = BgValueToYValue(bg);
+                    g.DrawLine(dashedPen, 0, y, maxX, y);
+                    g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
                 }
-                g.DrawLines(Pens.Black, points);
+                g.DrawLine(Pens.Black, 0, 0, 0, maxY);
+
+                for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
+                {
+                    int x = TimeOffsetToXValue(timeOffset);
+                    g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
+                    g.DrawLine(dashedPen, x, 0, x, maxY);
+                }
+                g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
+
+                if (dataPoints.Count > 0)
+                {
+                    Point[] points = new Point[dataPoints.Count];
+                    for (int i = 0; i < dataPoints.Count; ++i)
+                    {
+                        points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
+                    }
+                    g.DrawLines(Pens.Black, points);
+                }
             }
         }
 

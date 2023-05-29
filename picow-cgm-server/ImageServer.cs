@@ -46,9 +46,7 @@ namespace picow_cgm_server
                 byte[] ePaperImage = imageGenerator.GenerateImageForEPaper();
                 if (!ePaperImage.SequenceEqual(previousImage))
                 {
-                    File.WriteAllBytes("prev.bin", previousImage);
-                    File.WriteAllBytes("paper.bin", ePaperImage);
-                    previousImage = ePaperImage;
+                   previousImage = ePaperImage;
                     ++version;
                 }
 
