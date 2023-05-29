@@ -62,7 +62,7 @@ jobs:
           Description=My .NET Core Application
 
           [Service]
-          ExecStart=~/cgmserver/publish/picow-cgm-server
+          ExecStart=/home/pi/cgmserver/publish/picow-cgm-server
           Restart=always
           RestartSec=10  
           SyslogIdentifier=picow-cgm-server
