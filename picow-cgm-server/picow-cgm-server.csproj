@@ -6,9 +6,9 @@
 		<RootNamespace>picow_cgm_server</RootNamespace>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
-	</PropertyGroup>
+    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
