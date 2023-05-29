@@ -37,7 +37,7 @@ jobs:
         username: ${{ secrets.RASPBERRY_PI_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: "./publish/"
-        target: "/cgmserver"
+        target: "~/cgmserver"
 
     - name: Set permission and Run the application on Raspberry Pi
       uses: appleboy/ssh-action@master
@@ -47,6 +47,6 @@ jobs:
         username: ${{ secrets.RASPBERRY_PI_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          chmod +x /cgmserver/yourapp
-          /cgmserver/yourapp
+          chmod +x ~/cgmserver/yourapp
+          ~/cgmserver/yourapp
           
