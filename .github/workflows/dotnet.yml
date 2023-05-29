@@ -47,6 +47,6 @@ jobs:
         username: ${{ secrets.RASPBERRY_PI_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          chmod +x ~/cgmserver/yourapp
-          ~/cgmserver/yourapp
+          chmod +x ~/cgmserver/picow-cgm-server
+          ~/cgmserver/picow-cgm-server
           
