@@ -31,6 +31,7 @@ jobs:
 
     - name: Kill previously running instance on Raspberry Pi
       uses: appleboy/ssh-action@master
+      continue-on-error: true
       with:
         host: ${{ secrets.RASPBERRY_PI_IP }}
         port: ${{ secrets.RASPBERRY_PI_PORT }}
