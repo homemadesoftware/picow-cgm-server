@@ -48,7 +48,10 @@ namespace picow_cgm_core
 
         public byte[] GenerateImageForEPaper()
         {
-            return ToImageArrayForEPaper(GenerateBitmap());
+            using (var bitmap = GenerateBitmap())
+            {
+                return ToImageArrayForEPaper(bitmap);
+            }
         }
 
         private void DrawGraph(Graphics g, List<DataPoint> dataPoints)
@@ -56,60 +59,63 @@ namespace picow_cgm_core
             if (dataPoints.Count == 0)
             {
                 g.FillRectangle(Brushes.Black, new Rectangle(0, 0, width, height));
-                Font fWarning = new Font(FontFamily.GenericSansSerif, 40f, FontStyle.Bold);
-                g.DrawString("NO DATA", fWarning, Brushes.White, 4, 4, StringFormat.GenericDefault);
+                using (Font fWarning = new Font(FontFamily.GenericSansSerif, 40f, FontStyle.Bold))
+                {
+                    g.DrawString("NO DATA", fWarning, Brushes.White, 4, 4, StringFormat.GenericDefault);
+                }
                 return;
             }
 
             g.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
 
-            Font fTick = new Font(FontFamily.GenericSansSerif, 6f);
-
-            Pen dashedPen = new Pen(Color.Black);
-            dashedPen.DashStyle = DashStyle.DashDotDot;
-
-            for (double bg = 2d; bg < maxBg; bg += 4)
+            using (Font fTick = new Font(FontFamily.GenericSansSerif, 6f))
+            using (Pen dashedPen = new Pen(Color.Black))
             {
-                int y = BgValueToYValue(bg);
-                g.DrawLine(dashedPen, 0, y, maxX, y);
-                g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
-            }
-            g.DrawLine(Pens.Black, 0, 0, 0, maxY);
+                dashedPen.DashStyle = DashStyle.DashDotDot;
 
-            for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
-            {
-                int x = TimeOffsetToXValue(timeOffset);
-                g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
-                g.DrawLine(dashedPen, x, 0, x, maxY);
-            }
-            g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
-
-            if (dataPoints.Count > 0)
-            {
-                Point[] points = new Point[dataPoints.Count];
-                for (int i = 0; i < dataPoints.Count; ++i)
+                for (double bg = 2d; bg < maxBg; bg += 4)
                 {
-                    points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
+                    int y = BgValueToYValue(bg);
+                    g.DrawLine(dashedPen, 0, y, maxX, y);
+                    g.DrawString(bg.ToString(), fTick, Brushes.Black, 4, y - 8, StringFormat.GenericDefault);
                 }
-                g.DrawLines(Pens.Black, points);
+                g.DrawLine(Pens.Black, 0, 0, 0, maxY);
 
-                // slap a warning if needed
-                double mostRecentReadingTime = dataPoints[dataPoints.Count - 1].TimeOffsetMinutes;
-                if (mostRecentReadingTime > 5)
+                for (double timeOffset = 0; timeOffset < maxTimeOffset; timeOffset += 30)
                 {
-                    Font fWarning = new Font(FontFamily.GenericSansSerif, 20f, FontStyle.Italic);
-                    if (mostRecentReadingTime > 15)
+                    int x = TimeOffsetToXValue(timeOffset);
+                    g.DrawString(timeOffset.ToString(), fTick, Brushes.Black, x, maxY - 10, StringFormat.GenericDefault);
+                    g.DrawLine(dashedPen, x, 0, x, maxY);
+                }
+                g.DrawLine(Pens.Black, 0, maxY, maxX, maxY);
+
+                if (dataPoints.Count > 0)
+                {
+                    Point[] points = new Point[dataPoints.Count];
+                    for (int i = 0; i < dataPoints.Count; ++i)
                     {
-                        g.DrawString("Stale > 15 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
+                        points[i] = new Point(TimeOffsetToXValue(dataPoints[i].TimeOffsetMinutes), BgValueToYValue(dataPoints[i].Reading));
                     }
-                    else
+                    g.DrawLines(Pens.Black, points);
+
+                    // slap a warning if needed
+                    double mostRecentReadingTime = dataPoints[dataPoints.Count - 1].TimeOffsetMinutes;
+                    if (mostRecentReadingTime > 5)
                     {
-                        g.DrawString("Stale > 5 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
+                        using (Font fWarning = new Font(FontFamily.GenericSansSerif, 20f, FontStyle.Italic))
+                        {
+                            if (mostRecentReadingTime > 15)
+                            {
+                                g.DrawString("Stale > 15 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
+                            }
+                            else
+                            {
+                                g.DrawString("Stale > 5 min", fWarning, Brushes.Black, 4, 4, StringFormat.GenericDefault);
+                            }
+                        }
                     }
                 }
             }
-
-
         }
 
         private byte[] ToImageArrayForEPaper(Bitmap bitmap)
