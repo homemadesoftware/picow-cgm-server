@@ -74,6 +74,15 @@ jobs:
           [Install]
           WantedBy=multi-user.target" | sudo tee /etc/systemd/system/picow-cgm-server.service
           sudo chmod 644 /etc/systemd/system/picow-cgm-server.service
+          echo "[Unit]
+          Description=Timer for picow-cgm-server to restart
+          [Timer]
+          OnCalendar=*:0/15
+          Persistent=true
+          [Install]
+          WantedBy=timers.target" | sudo tee /etc/systemd/system/picow-cgm-server.timer
+          sudo chmod 644 /etc/systemd/system/picow-cgm-server.service
+          sudo chmod 644 /etc/systemd/system/picow-cgm-server.timer
           sudo systemctl daemon-reload
           sudo systemctl start picow-cgm-server.service
           sudo systemctl enable picow-cgm-server.service
